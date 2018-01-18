@@ -15,5 +15,4 @@ SOURCES += main.cpp \
     client.cpp
 
 HEADERS += \
-    client.h \
-    clientgui.h
+    client.h

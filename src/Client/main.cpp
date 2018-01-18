@@ -1,6 +1,5 @@
 #include <iostream>
 #include "client.h"
-#include "clientgui.h"
 
 int main(int argc, char** argv)
 {

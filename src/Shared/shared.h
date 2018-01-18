@@ -2,14 +2,16 @@
 #define SHARED_H
 
 #include <SFML/Network.hpp>
+#include <unordered_map>
 
 #ifdef WIN32
 #include <Windows.h>
 #endif
 
-enum class Type { Message, ServerMessage, ServerIsFull, ServerConnected, ServerPasswordNeeded, Kick, Connection, Disconnection, Password, Promotion, Update};
+enum class Type { Message, ServerMessage, ServerIsFull, ServerConnected, ServerPasswordNeeded, Kick, Connection, Disconnection, Password, Promotion,
+                  SomebodyPromotion};
 
-enum class ClientType { Normie, Administrator };
+enum class ClientType { Normie = 0, Administrator };
 
 enum class Color {Red, Green, Blue, Yellow, White, Default};
 
@@ -63,4 +65,23 @@ public:
     Color m_color;
 };
 
+
+class Shared{
+public:
+    Shared()
+    {
+        m_names[ClientType::Normie] = "User";
+        m_names[ClientType::Administrator] = "Administrator";
+    }
+    std::string getNameFor(const ClientType& l_type)
+    {
+        auto itr = m_names.find(l_type);
+        if(itr == m_names.end()){
+            return "";
+        }
+        return itr->second;
+    }
+
+    std::unordered_map<ClientType, std::string> m_names;
+};
 #endif // SHARED_H

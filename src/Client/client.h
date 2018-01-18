@@ -25,8 +25,9 @@ public:
     void printText(const std::string& l_string, const Color& l_color);
 private:
     void receiveThread();
+    Shared m_shared;
     ClientData m_client;
-    std::string m_serverIp;
+    sf::IpAddress m_serverIp;
     sf::Uint16 m_serverPort;
     bool m_inputData;
     std::string m_version;

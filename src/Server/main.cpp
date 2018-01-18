@@ -1,11 +1,10 @@
-#include "server.h"
+#include "consoleserver.h"
 
 int main(int argc, char**argv)
 {
-    Server server;
+    ConsoleServer server;
     if(!server.processArguments(argc, argv)){
        return 0;
     }
-    server.printServerInfo();
-    server.run();
+    return server.run();
 }

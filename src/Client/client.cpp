@@ -32,7 +32,7 @@ void Client::inputData()
 
 Status Client::connect()
 {
-    if(m_client.m_socket.connect(sf::IpAddress(m_serverIp), m_serverPort, sf::seconds(2)) == sf::Socket::Done){
+    if(m_client.m_socket.connect(m_serverIp, m_serverPort, sf::seconds(2)) == sf::Socket::Done){
         sf::Packet packet;
         if(m_client.m_socket.receive(packet) == sf::Socket::Done){
             Type type;
@@ -264,22 +264,25 @@ void Client::unpack(sf::Packet &packet)
             break;
         }
         case Type::Promotion:{
-            packet >> m_client.m_type;
-            if(m_client.m_type == ClientType::Administrator){
-                printText("You have been promoted to administrator", Color::Green);
+            ClientType type;
+            packet >> type;
+            if(m_client.m_type < type){
+                printText("You have been promoted to: " + m_shared.getNameFor(type), Color::Green);
             } else{
-                printText("You have been degraded from administrator", Color::Red);
+                printText("You have been degraded to: " + m_shared.getNameFor(type), Color::Red);
             }
+            m_client.m_type = type;
             break;
         }
-        case Type::Update:{
+        case Type::SomebodyPromotion:{
             ClientType type;
             std::string name;
-            packet >> type >> name;
-            if(type == ClientType::Administrator){
-                printText(name + " have been promoted to administrator", Color::Green);
+            bool promoted;
+            packet >> type >> name >> promoted;
+            if(promoted){
+                printText(name + " has been promoted to: " + m_shared.getNameFor(type), Color::Green);
             } else{
-                printText(name + " have been degraded from administrator", Color::Red);
+                printText(name + " has been degraded to: " + m_shared.getNameFor(type), Color::Red);
             }
         }
     }

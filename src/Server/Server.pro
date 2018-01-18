@@ -12,9 +12,11 @@ INCLUDEPATH += "D:\Biblioteki\SFML-2.4.2\include"
 DEPENDPATH += "D:\Biblioteki\SFML-2.4.2\include"
 
 SOURCES += main.cpp \
+    consoleserver.cpp \
     server.cpp
 
 HEADERS += \
-    server.h \
     cxxopts.h \
-    shared.h
+    shared.h \
+    consoleserver.h \
+    server.h
