@@ -46,7 +46,7 @@ public:
 
     /// MAIN FUNCTIONS
     virtual int run();
-    void quit() { m_running = false; }
+    void quit();
 private:
     sf::TcpListener m_listener;
     sf::SocketSelector m_selector;

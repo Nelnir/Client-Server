@@ -9,7 +9,7 @@
 #endif
 
 enum class Type { Message, ServerMessage, ServerIsFull, ServerConnected, ServerPasswordNeeded, Kick, Connection, Disconnection, Password, Promotion,
-                  SomebodyPromotion};
+                  SomebodyPromotion, ServerExit};
 
 enum class ClientType { Normie = 0, Administrator };
 

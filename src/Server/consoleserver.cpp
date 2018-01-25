@@ -230,7 +230,7 @@ void ConsoleServer::changeMaxClients()
 
 void ConsoleServer::kick()
 {
-    if(Server::kick(getline())){
+    if(Server::kick(getline(), true)){
         printText("Client have been kicked", Color::Green);
     } else{
         printError("An error occured");

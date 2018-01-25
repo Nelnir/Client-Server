@@ -285,6 +285,11 @@ void Client::unpack(sf::Packet &packet)
                 printText(name + " has been degraded to: " + m_shared.getNameFor(type), Color::Red);
             }
         }
+        case Type::ServerExit:{
+            printText("Server closed the connection", Color::Red);
+            m_running = false;
+            break;
+        }
     }
 }
 

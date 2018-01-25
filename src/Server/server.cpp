@@ -158,7 +158,6 @@ bool Server::sendMessageToAllClients(sf::Packet &l_packet, std::unique_ptr<Clien
         }
         if(!sendMessageTo(itr, l_packet)){
             onErrorWithSendingData(itr);
-            return false;
         }
     }
     return true;
@@ -318,4 +317,12 @@ void Server::onClientPacketReceived(std::unique_ptr<ClientServerData> &l_client,
         break;
         }
     }
+}
+
+void Server::quit()
+{
+    sf::Packet packet;
+    packet << Type::ServerExit;
+    sendMessageToAllClients(packet);
+    m_running = false;
 }
