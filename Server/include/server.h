@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <functional>
 #include <unordered_set>
-#include "../Shared/shared.h"
+#include "../../Shared/shared.h"
 
 struct ClientServerData{
     ClientServerData() : m_connected(false) {}
@@ -33,6 +33,7 @@ public:
     /// SETTERS
     void setPassword(const std::string& l_password) { m_password = l_password; }
     void setPort(const sf::Uint16& l_port) { m_port = l_port; }
+    void setMaxNumberOfClients(const sf::Uint32& l_max) { m_max = l_max; }
 
     /// GETTERS
 

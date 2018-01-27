@@ -1,5 +1,5 @@
 #include "client.h"
-#include "../Shared/cxxopts.h"
+#include "../../Shared/cxxopts.h"
 #include <thread>
 
 Client::Client() :

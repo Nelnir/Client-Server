@@ -2,7 +2,7 @@
 #define CLIENT_H
 
 #include <SFML/Network.hpp>
-#include "../Shared/shared.h"
+#include "../../Shared/shared.h"
 #include <string>
 
 enum class Status { ServerIsFull, ErrorWhenRetrievingData, ErrorWhenSendingData, Success, Wrong, Exit, UnableToConnect, Blocked};

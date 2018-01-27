@@ -1,6 +1,6 @@
 #include "server.h"
 #include <algorithm>
-#include "../Shared/cxxopts.h"
+#include "../../Shared/cxxopts.h"
 #include <utility>
 #include <thread>
 #include <chrono>
@@ -210,7 +210,7 @@ bool Server::processArguments(int& argc, char **&argv)
             setPort(result["port"].as<sf::Uint16>());
         }
         if(result.count("max")){
-            m_max = result["max"].as<sf::Uint32>();
+            setMaxNumberOfClients(result["max"].as<sf::Uint32>());
         }
         if(result.count("password")){
             m_password = result["password"].as<std::string>();

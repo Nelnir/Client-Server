@@ -1,13 +1,13 @@
 *.dll
-src/Server/release/Server53000.exe.lnk
 *.obj
-src/Server/Makefile
 *.Debug
 *.Release
 *.exe
 *.pdb
 *.ilk
 *.lnk
-src/Client/Makefile
 *.stash
 *.user
+bin/
+lib/
+build/

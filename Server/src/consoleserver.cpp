@@ -225,7 +225,13 @@ void ConsoleServer::changePassword()
 
 void ConsoleServer::changeMaxClients()
 {
-    m_max = std::stoi(getline());
+    try{
+        setMaxNumberOfClients(std::stoi(getline()));
+    }
+    catch(const std::logic_error& ex){
+        printError(ex.what());
+        return;
+    }
 }
 
 void ConsoleServer::kick()
