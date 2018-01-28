@@ -25,7 +25,7 @@ Client::~Client()
 Status Client::checkPassword(const std::string &l_password)
 {
     sf::Packet packet;
-    packet << l_password;
+    packet << Type::Password << l_password;
     if(m_client.m_socket.send(packet) != sf::Socket::Done){
         onErrorWithSendingData();
     }
@@ -45,7 +45,7 @@ Status Client::checkPassword(const std::string &l_password)
 
 Status Client::connect(const std::string& l_password)
 {
-    if(m_client.m_socket.connect(m_serverIp, m_serverPort, sf::seconds(2)) == sf::Socket::Done){
+    if(m_client.m_socket.connect(m_serverIp, m_serverPort, sf::seconds(5)) == sf::Socket::Done){
         sf::Packet packet;
         if(m_client.m_socket.receive(packet) == sf::Socket::Done){
             Type type;
@@ -55,7 +55,7 @@ Status Client::connect(const std::string& l_password)
                 case Type::ServerConnected:      return Status::Connected;
                 case Type::ServerIsFull:         return Status::ServerIsFull;
                 case Type::Kick:                 return Status::Blocked;
-                case Type::ServerPasswordNeeded: return checkPassword(l_password);
+                case Type::ServerPasswordNeeded: if(l_password.empty()) return Status::WrongPassword; return checkPassword(l_password);
             }
         }
     }
@@ -69,7 +69,7 @@ bool Client::establishConnection()
     if(status == Status::WrongPassword){
         do{
             std::string password = onServerPasswordNeeded();
-            status = connect(password);
+            status = checkPassword(password);
             if(status == Status::WrongPassword){
                 onServerWrongPassword();
             }
@@ -165,7 +165,7 @@ void Client::message(sf::Packet &l_packet)
         username += "[ADMIN]";
     }
     username += ": ";
-    onMessageReceived(username, type);
+    onMessageReceived(username + message, type);
 }
 
 void Client::serverMessage(sf::Packet &l_packet)

@@ -34,7 +34,6 @@ int Server::run()
         return -1;
     }
     m_selector.add(m_listener);
-
     while(m_running)
     {
         if(m_selector.wait(sf::milliseconds(50))){
@@ -90,17 +89,6 @@ void Server::processNewClient(std::unique_ptr<ClientServerData> && client)
         sf::Packet packet;
         packet << Type::ServerPasswordNeeded;
         sendMessageTo(m_clients.back(), packet);
-
-        /*auto func = [this]() -> bool
-        {
-            sf::Packet packet;
-            if(client->m_client.m_socket.receive(packet) == sf::Socket::Done){
-                std::string password;
-                packet >> password;
-                return password = m_password;
-            }
-        };*/
-
         return;
     }
 
@@ -118,17 +106,13 @@ void Server::prepareNewClient(std::unique_ptr<ClientServerData> &client)
     std::lock_guard<std::mutex> lk(m_mutex);
     if(static_cast<sf::Uint32>(std::count_if(m_clients.begin(), m_clients.end(), [](const std::unique_ptr<ClientServerData>& a) { return a->m_connected; })) < m_max){
         packet << Type::ServerConnected;
-        if(!sendMessageTo(client, packet)){
-            return;
-        }
+        sendMessageTo(client, packet);
         packet.clear();
         if(client->m_client.m_socket.receive(packet) != sf::Socket::Done){
             onErrorWithReceivingData(client);
-            return;
         } else{
             packet >> client->m_client.m_name >> client->m_client.m_type;
             finishNewClient(client);
-            return;
         }
     } else{
         packet << Type::ServerIsFull;
@@ -321,9 +305,7 @@ void Server::onClientPacketReceived(std::unique_ptr<ClientServerData> &l_client,
         } else{
             sf::Packet packet;
             packet << Type::ServerPasswordNeeded;
-            if(!sendMessageTo(l_client, packet)){
-                onErrorWithSendingData(l_client);
-            }
+            sendMessageTo(l_client, packet);
         }
         break;
         }

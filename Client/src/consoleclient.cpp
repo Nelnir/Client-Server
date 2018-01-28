@@ -69,11 +69,13 @@ void ConsoleClient::onArgumentsError(const char *l_what)
 void ConsoleClient::onUnableToConnect()
 {
     printError("Unable to connect");
+    std::this_thread::sleep_for(std::chrono::seconds(3));
 }
 
 void ConsoleClient::onServerIsFull()
 {
     printError("Server is full");
+    std::this_thread::sleep_for(std::chrono::seconds(3));
 }
 
 void ConsoleClient::onBlockedFromServer()
@@ -94,6 +96,7 @@ std::string ConsoleClient::onServerPasswordNeeded()
     m_colorChanger.setConsoleTextColor(Color::White);
     std::cin >> password;
     m_colorChanger.setConsoleTextColor(Color::Default);
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return password;
 }
 
