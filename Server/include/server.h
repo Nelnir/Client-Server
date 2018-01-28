@@ -36,6 +36,9 @@ public:
     void setMaxNumberOfClients(const sf::Uint32& l_max) { m_max = l_max; }
 
     /// GETTERS
+    std::string getPassword() { return m_password; }
+    sf::Uint16 getPort() { return m_port; }
+    sf::Uint32 getMaxNumberOfClients() { return m_max; }
 
     /// UTILITIES
     bool block(const std::string& l_ip);
@@ -74,7 +77,7 @@ protected:
     bool sendMessageToAllClients(sf::Packet& l_packet, std::unique_ptr<ClientServerData>* l_except = nullptr);
     bool sendMessageTo(std::unique_ptr<ClientServerData>& l_data, const std::string& l_text);
     bool sendMessageTo(std::unique_ptr<ClientServerData>& l_data, sf::Packet& l_text);
-    bool sendConnectionNotification(const std::string& l_name, const Type& l_type, const Color& l_color, std::unique_ptr<ClientServerData>* l_except = nullptr);
+    bool sendConnectionNotification(const std::string& l_name, const Type& l_type, std::unique_ptr<ClientServerData>* l_except = nullptr);
 
     virtual void onClientBlocked(std::unique_ptr<ClientServerData>& l_client) = 0;
     virtual void onClientRejected(std::unique_ptr<ClientServerData>& l_client) = 0;

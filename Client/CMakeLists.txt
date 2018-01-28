@@ -9,7 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-set(EXE_SOURCES src/main.cpp src/client.cpp)
+set(EXE_SOURCES src/main.cpp src/client.cpp include/client.h src/consoleclient.cpp include/consoleclient.h)
 
 add_executable(${EXE_NAME} ${EXE_SOURCES})
 

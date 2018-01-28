@@ -561,12 +561,12 @@ namespace cxxopts
           throw argument_incorrect_type(text);
         }
 
-        if (umax - digit < result * base)
+        if (static_cast<int>(umax - digit) < static_cast<int>(result * base))
         {
           throw argument_incorrect_type(text);
         }
 
-        result = result * base + digit;
+        result = static_cast<US>(result * base + digit);
       }
 
       detail::check_signed_range<T>(negative, result, text);

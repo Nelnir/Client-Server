@@ -4,42 +4,81 @@
 #include <SFML/Network.hpp>
 #include "../../Shared/shared.h"
 #include <string>
+#include <unordered_map>
+#include <functional>
 
-enum class Status { ServerIsFull, ErrorWhenRetrievingData, ErrorWhenSendingData, Success, Wrong, Exit, UnableToConnect, Blocked};
+enum class Status { ServerIsFull, Connected, WrongPassword, UnableToConnect, Blocked};
+
+using Responses = std::unordered_map<Type, std::function<void(sf::Packet&)>>;
 
 class Client
 {
-    ColorChanger m_colorChanger;
 public:
     Client();
     ~Client();
 
-
-    void inputData();
     bool processArguments(int& argc, char**& argv);
 
-    Status connect();
-    void successfullyConnected();
-    void run();
-    void printError(const std::string &l_string);
-    void printText(const std::string& l_string, const Color& l_color);
+    ///SETTERS
+    void setPort(const sf::Uint16& l_port) { m_serverPort = l_port; }
+    void setIp(const sf::IpAddress& l_ip) { m_serverIp = l_ip; }
+
+    ///GETTERS
+    sf::Uint16 getPort() { return m_serverPort; }
+    sf::IpAddress getIp() { return m_serverIp; }
+
+    /// MAIN
+    bool establishConnection();
+    virtual int run();
+    void quit();
 private:
-    void receiveThread();
-    Shared m_shared;
-    ClientData m_client;
-    sf::IpAddress m_serverIp;
-    sf::Uint16 m_serverPort;
-    bool m_inputData;
-    std::string m_version;
-    bool m_running;
-
+    Responses m_responses;
     void unpack(sf::Packet& l_packet);
-
-    void sendToServer(const std::string& l_text);
-    void sendToServer(sf::Packet& l_packet);
     bool sendClientDataToServer();
-    Status inputServerPassword();
-    Status checkServerPassword(const std::string& l_pass);
+protected:
+    ClientData m_client;
+    Shared m_shared;
+    bool m_running;
+    sf::Uint16 m_serverPort;
+    sf::IpAddress m_serverIp;
+    const std::string m_version;
+
+    Status connect(const std::string& l_password = "");
+    Status connect(const sf::Uint16& l_port, const sf::IpAddress& l_ip, const std::string& l_password = "");
+    Status checkPassword(const std::string& l_password);
+
+    bool sendToServer(sf::Packet& l_packet);
+    void sendToServer(const std::string& l_text);
+
+    virtual void onInitialization() = 0;
+    virtual void onSuccessfullyConnected() = 0;
+    virtual void onErrorWithSendingData() = 0;
+    virtual void onErrorWithReceivingData() = 0;
+    virtual void onServerClosedConnection() = 0;
+    virtual void onServerWrongPassword() = 0;
+    virtual void onArgumentsError(const char*) = 0;
+    virtual void onUnableToConnect() = 0;
+    virtual void onServerIsFull() = 0;
+    virtual void onBlockedFromServer() = 0;
+    virtual void onError(const std::string& l_text) = 0;
+    virtual std::string onServerPasswordNeeded() = 0;
+
+
+    virtual void onMessageReceived(const std::string&, const ClientType& l_type) = 0;
+    virtual void onServerMessageReceived(const std::string&) = 0;
+    virtual void onKick() = 0;
+    virtual void onPromotion(const std::string& l_text, const bool& l_promotion) = 0;
+    virtual void onConnectionNotificationReceived(const std::string&, const Type&) = 0;
+    virtual void onServerExit() = 0;
+
+    /// RESPONSES
+    void message(sf::Packet& l_packet);
+    void serverMessage(sf::Packet& l_packet);
+    void kick(sf::Packet& l_packet);
+    void promotion(sf::Packet& l_packet);
+    void somebodyPromotion(sf::Packet& l_packet);
+    void connectionNotification(sf::Packet& l_packet);
+    void serverExit(sf::Packet& l_packet);
 };
 
 #endif // CLIENT_H

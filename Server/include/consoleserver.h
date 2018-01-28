@@ -18,16 +18,6 @@ public:
     void printText(const std::string& l_string, const Color& l_color);
     void printServerInfo();
 
-    void onClientBlocked(std::unique_ptr<ClientServerData>& l_client);
-    void onClientRejected(std::unique_ptr<ClientServerData>& l_client);
-    void onClientConnected(std::unique_ptr<ClientServerData>& l_client);
-    void onClientDisconnected(std::unique_ptr<ClientServerData>& l_client);
-    void onClientPromoted(std::unique_ptr<ClientServerData>& l_client, const bool& l_promoted);
-    void onClientMessageReceived(std::unique_ptr<ClientServerData> &l_client, const std::string &l_text);
-    void onErrorWithReceivingData(std::unique_ptr<ClientServerData>& l_client);
-    void onErrorWithSendingData(std::unique_ptr<ClientServerData>& l_client);
-    void onArgumentsError(const char * l_what);
-    void error(const std::string& l_text);
 private:
     Commands m_commands;
     CommandsDescriptions m_commandsDescriptions;
@@ -51,6 +41,18 @@ private:
 
     /// input function
     std::string getline();
+
+protected:
+    void onClientBlocked(std::unique_ptr<ClientServerData>& l_client);
+    void onClientRejected(std::unique_ptr<ClientServerData>& l_client);
+    void onClientConnected(std::unique_ptr<ClientServerData>& l_client);
+    void onClientDisconnected(std::unique_ptr<ClientServerData>& l_client);
+    void onClientPromoted(std::unique_ptr<ClientServerData>& l_client, const bool& l_promoted);
+    void onClientMessageReceived(std::unique_ptr<ClientServerData> &l_client, const std::string &l_text);
+    void onErrorWithReceivingData(std::unique_ptr<ClientServerData>& l_client);
+    void onErrorWithSendingData(std::unique_ptr<ClientServerData>& l_client);
+    void onArgumentsError(const char * l_what);
+    void error(const std::string& l_text);
 };
 
 #endif // CONSOLESERVER_H

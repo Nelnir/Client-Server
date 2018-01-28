@@ -28,6 +28,7 @@ Server::~Server()
 
 int Server::run()
 {
+    m_running = true;
     if(m_listener.listen(m_port) != sf::Socket::Done){
         error("Error when listening on port: " + m_port);
         return -1;
@@ -64,7 +65,10 @@ int Server::run()
                     if(status == sf::Socket::Done){
                         onClientPacketReceived(*itr, packet);
                     } else if(status == sf::Socket::Disconnected){
-                        onClientDisconnected(*itr);
+                        if((*itr)->m_connected){
+                            onClientDisconnected(*itr);
+                            sendConnectionNotification((*itr)->m_client.m_name, Type::Disconnection, &*itr);
+                        }
                         m_selector.remove(socket);
                         itr = m_clients.erase(itr);
                         continue;
@@ -74,7 +78,6 @@ int Server::run()
             }
         }
     }
-
     return 0;
 }
 
@@ -86,9 +89,18 @@ void Server::processNewClient(std::unique_ptr<ClientServerData> && client)
     if(!m_password.empty()){
         sf::Packet packet;
         packet << Type::ServerPasswordNeeded;
-        if(!sendMessageTo(m_clients.back(), packet)){
-            onErrorWithSendingData(client);
-        }
+        sendMessageTo(m_clients.back(), packet);
+
+        /*auto func = [this]() -> bool
+        {
+            sf::Packet packet;
+            if(client->m_client.m_socket.receive(packet) == sf::Socket::Done){
+                std::string password;
+                packet >> password;
+                return password = m_password;
+            }
+        };*/
+
         return;
     }
 
@@ -104,7 +116,7 @@ void Server::prepareNewClient(std::unique_ptr<ClientServerData> &client)
 {
     sf::Packet packet;
     std::lock_guard<std::mutex> lk(m_mutex);
-    if(std::count_if(m_clients.begin(), m_clients.end(), [](const std::unique_ptr<ClientServerData>& a) { return a->m_connected; }) < static_cast<size_t>(m_max)){
+    if(static_cast<sf::Uint32>(std::count_if(m_clients.begin(), m_clients.end(), [](const std::unique_ptr<ClientServerData>& a) { return a->m_connected; })) < m_max){
         packet << Type::ServerConnected;
         if(!sendMessageTo(client, packet)){
             return;
@@ -132,7 +144,7 @@ void Server::finishNewClient(std::unique_ptr<ClientServerData>& l_client)
     l_client->m_client.m_socket.setBlocking(false);
     l_client->m_connected = true;
     onClientConnected(l_client);
-    sendConnectionNotification(l_client->m_client.m_name, Type::Connection, Color::Green, &l_client);
+    sendConnectionNotification(l_client->m_client.m_name, Type::Connection, &l_client);
 }
 
 bool Server::sendMessageToAllClientsFrom(std::unique_ptr<ClientServerData>& l_data, const std::string &l_text)
@@ -163,10 +175,10 @@ bool Server::sendMessageToAllClients(sf::Packet &l_packet, std::unique_ptr<Clien
     return true;
 }
 
-bool Server::sendConnectionNotification(const std::string &l_name, const Type& l_type, const Color& l_color, std::unique_ptr<ClientServerData>* l_except)
+bool Server::sendConnectionNotification(const std::string &l_name, const Type& l_type, std::unique_ptr<ClientServerData>* l_except)
 {
     sf::Packet packet;
-    packet << Type::Connection << l_name << l_type << l_color;
+    packet << Type::Connection << l_name << l_type;
     return sendMessageToAllClients(packet, l_except);
 }
 
@@ -279,7 +291,7 @@ bool Server::kick(const std::string &l_ip, const bool& l_block)
         packet << Type::Kick;
         std::string name = (*itr)->m_client.m_name;
         sendMessageTo(*itr, packet);
-        sendConnectionNotification(name, Type::Kick, Color::Red, &*itr);
+        sendConnectionNotification(name, Type::Kick, &*itr);
         m_selector.remove((*itr)->m_client.m_socket);
         m_clients.erase(itr);
         ++itr;
@@ -304,11 +316,10 @@ void Server::onClientPacketReceived(std::unique_ptr<ClientServerData> &l_client,
     case Type::Password:{
         std::string text;
         l_packet >> text;
-
-        sf::Packet packet;
         if(text == m_password){
             std::thread(&Server::prepareNewClient, this, std::ref(l_client)).detach();
         } else{
+            sf::Packet packet;
             packet << Type::ServerPasswordNeeded;
             if(!sendMessageTo(l_client, packet)){
                 onErrorWithSendingData(l_client);

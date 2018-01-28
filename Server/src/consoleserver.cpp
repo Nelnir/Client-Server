@@ -40,7 +40,6 @@ int ConsoleServer::run()
 {
     m_running = true;
     printServerInfo();
-
     std::thread(&ConsoleServer::inputThread, this).detach();
     return Server::run();
 }
@@ -107,10 +106,6 @@ void ConsoleServer::onClientDisconnected(std::unique_ptr<ClientServerData> &l_cl
 {
     std::string name = l_client->m_client.m_name;
     printText((name.empty() ? l_client->m_ip : name) + " disconnected", Color::Red);
-
-    if(l_client->m_connected){
-        sendConnectionNotification(name, Type::Disconnection, Color::Red, &l_client);
-    }
 }
 
 void ConsoleServer::onClientPromoted(std::unique_ptr<ClientServerData>& l_client, const bool& l_promoted)
