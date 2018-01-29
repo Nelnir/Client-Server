@@ -13,6 +13,8 @@ set(EXE_SOURCES src/main.cpp src/Server.cpp src/ConsoleServer.cpp include/Consol
 
 add_executable(${EXE_NAME} ${EXE_SOURCES})
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
+
 set(SFML_STATIC_LIBRARIES TRUE)
 set(SFML_ROOT "D:/Biblioteki/SFML-2.4.2")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "D:/Biblioteki/SFML-2.4.2/cmake/modules")
