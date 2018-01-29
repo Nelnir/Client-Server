@@ -14,8 +14,8 @@ set(SOURCE_FILES
         main.cpp
         tst_casename.h)
 
-add_executable(test_server ${SOURCE_FILES})
+add_executable(test_client ${SOURCE_FILES})
 
-target_link_libraries(test_server gtest gtest_main)
+target_link_libraries(test_client gtest gtest_main)
 
-add_test(eq test_server)
+add_test(eq test_client)

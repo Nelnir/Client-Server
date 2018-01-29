@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(Client)
 
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+#set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(EXE_NAME Client)
 
 # Output directory
@@ -12,6 +12,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(EXE_SOURCES src/main.cpp src/client.cpp include/client.h src/consoleclient.cpp include/consoleclient.h)
 
 add_executable(${EXE_NAME} ${EXE_SOURCES})
+
+add_subdirectory(tests)
 
 set(SFML_STATIC_LIBRARIES TRUE)
 set(SFML_ROOT "D:/Biblioteki/SFML-2.4.2")

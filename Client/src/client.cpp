@@ -222,7 +222,7 @@ void Client::somebodyPromotion(sf::Packet &l_packet)
 void Client::serverExit(sf::Packet &l_packet)
 {
     onServerExit();
-    m_running = false;
+    quit();
 }
 
 void Client::unpack(sf::Packet &packet)
