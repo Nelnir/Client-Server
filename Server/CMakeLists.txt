@@ -3,17 +3,20 @@ project(Server)
 
 #set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 set(EXE_NAME Server)
+set(LIB_NAME Server-lib)
 
 # Output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-set(EXE_SOURCES src/main.cpp src/Server.cpp src/ConsoleServer.cpp include/ConsoleServer.h include/Server.h)
+set(EXE_SOURCES src/main.cpp src/ConsoleServer.cpp include/ConsoleServer.h)
 
 add_executable(${EXE_NAME} ${EXE_SOURCES})
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
+add_library(${LIB_NAME} STATIC src/server.cpp include/server.h)
+
+target_link_libraries(${EXE_NAME} ${LIB_NAME})
 
 set(SFML_STATIC_LIBRARIES TRUE)
 set(SFML_ROOT "D:/Biblioteki/SFML-2.4.2")
