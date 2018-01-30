@@ -53,7 +53,6 @@ int Server::run()
                     }
                 }
             }
-
             std::lock_guard<std::mutex> lk(m_mutex);
             auto itr = std::begin(m_clients);
             while(itr != std::end(m_clients)){
@@ -108,7 +107,8 @@ void Server::prepareNewClient(std::unique_ptr<ClientServerData> &client)
         packet << Type::ServerConnected;
         sendMessageTo(client, packet);
         packet.clear();
-        if(client->m_client.m_socket.receive(packet) != sf::Socket::Done){
+        auto status = client->m_client.m_socket.receive(packet);
+        if(status != sf::Socket::Done){
             onErrorWithReceivingData(client);
         } else{
             packet >> client->m_client.m_name >> client->m_client.m_type;

@@ -45,14 +45,14 @@ Status Client::checkPassword(const std::string &l_password)
 
 Status Client::connect(const std::string& l_password)
 {
-    if(m_client.m_socket.connect(m_serverIp, m_serverPort, sf::seconds(5)) == sf::Socket::Done){
+    if(m_client.m_socket.connect(m_serverIp, m_serverPort, sf::seconds(2)) == sf::Socket::Done){
         sf::Packet packet;
         if(m_client.m_socket.receive(packet) == sf::Socket::Done){
             Type type;
             packet >> type;
             switch(type)
             {
-                case Type::ServerConnected:      return Status::Connected;
+                case Type::ServerConnected:      if(sendClientDataToServer()) return Status::Connected; return Status::UnableToConnect;
                 case Type::ServerIsFull:         return Status::ServerIsFull;
                 case Type::Kick:                 return Status::Blocked;
                 case Type::ServerPasswordNeeded: if(l_password.empty()) return Status::WrongPassword; return checkPassword(l_password);
@@ -77,10 +77,8 @@ bool Client::establishConnection()
     }
 
     if(status == Status::Connected){
-        if(sendClientDataToServer()){
-            onSuccessfullyConnected();
-            return true;
-        }
+        onSuccessfullyConnected();
+        return true;
     } else if(status == Status::UnableToConnect){
         onUnableToConnect();
     } else if(status == Status::ServerIsFull){

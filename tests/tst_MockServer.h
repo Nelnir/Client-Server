@@ -2,6 +2,8 @@
 #include <gmock/gmock.h>
 #include "server.h"
 #include "client.h"
+#include <thread>
+#include <vector>
 
 using testing::AtLeast;
 
@@ -44,11 +46,62 @@ public:
     MOCK_METHOD0(onServerExit, void());
 };
 
-using namespace testing;
-
-TEST(CaseName, SetName)
+class ServerClientTest : public testing::Test
 {
-    MockServer server;
-    EXPECT_CALL(server, error(_)).Times(AtLeast(1));
-    server.error("xd");
+    virtual void SetUp(){
+        t_server = nullptr;
+    }
+    virtual void TearDown(){
+        for(auto& itr : m_clients){
+            delete itr.first;
+            if(itr.second) delete itr.second;
+        }
+        m_clients.clear();
+
+
+        if(t_server->joinable()) t_server->join();
+        delete t_server;
+    }
+protected:
+    MockServer m_server;
+    std::thread* t_server;
+    std::vector<std::pair<MockClient*, std::thread*>> m_clients;
+
+    void startServer(const sf::Uint16& l_port, const std::chrono::milliseconds& time = std::chrono::milliseconds(25), const sf::Uint32& l_max = -1, const std::string& l_password = ""){
+        m_server.setPort(l_port);
+        m_server.setPassword(l_password);
+        m_server.setMaxNumberOfClients(l_max);
+        t_server = new std::thread(&MockServer::run, &m_server);
+        std::thread([&]()
+        {
+            std::this_thread::sleep_for(time);
+            m_server.quit();
+        }).detach();
+    }
+    void startClient(const sf::Uint16& l_port, const sf::IpAddress& l_ip, const std::string& l_nick, const bool& l_run = false, const std::string& l_password = ""){
+        m_clients.emplace_back(std::make_pair(new MockClient, nullptr));
+        m_clients.back().first->setNickname(l_nick);
+        Status status = m_clients.back().first->connect(l_port, l_ip, l_password);
+        if(l_run && status == Status::Connected){
+            m_clients.back().second = new std::thread(&MockClient::run, m_clients.back().first);
+        }
+    }
+};
+
+TEST_F(ServerClientTest, ConnectingAndDisconnecting)
+{
+    EXPECT_CALL(m_server, onClientConnected(testing::_)).Times(1);
+    EXPECT_CALL(m_server, onClientDisconnected(testing::_)).Times(1);
+    startServer(53000);
+    startClient(53000, "localhost", "marcin");
+}
+
+TEST_F(ServerClientTest, SendingMessages)
+{
+    EXPECT_CALL(m_server, onClientConnected(testing::_)).Times(testing::AnyNumber());
+    EXPECT_CALL(m_server, onClientDisconnected(testing::_)).Times(testing::AnyNumber());
+    EXPECT_CALL(m_server, onClientMessageReceived(testing::_, "siema"));
+    startServer(53000);
+    startClient(53000, "localhost", "marcin");
+    m_clients.front().first->sendToServer("siema");
 }

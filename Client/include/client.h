@@ -22,15 +22,21 @@ public:
     ///SETTERS
     void setPort(const sf::Uint16& l_port) { m_serverPort = l_port; }
     void setIp(const sf::IpAddress& l_ip) { m_serverIp = l_ip; }
+    void setNickname(const std::string& l_nick) { m_client.m_name = l_nick; }
 
     ///GETTERS
     sf::Uint16 getPort() { return m_serverPort; }
     sf::IpAddress getIp() { return m_serverIp; }
+    std::string getNickname() { return m_client.m_name; }
 
     /// MAIN
     bool establishConnection();
     virtual int run();
     void quit();
+
+    Status connect(const std::string& l_password = "");
+    Status connect(const sf::Uint16& l_port, const sf::IpAddress& l_ip, const std::string& l_password = "");
+    void sendToServer(const std::string& l_text);
 private:
     Responses m_responses;
     void unpack(sf::Packet& l_packet);
@@ -43,12 +49,9 @@ protected:
     sf::IpAddress m_serverIp;
     const std::string m_version;
 
-    Status connect(const std::string& l_password = "");
-    Status connect(const sf::Uint16& l_port, const sf::IpAddress& l_ip, const std::string& l_password = "");
     Status checkPassword(const std::string& l_password);
 
     bool sendToServer(sf::Packet& l_packet);
-    void sendToServer(const std::string& l_text);
 
     virtual void onInitialization() = 0;
     virtual void onSuccessfullyConnected() = 0;
