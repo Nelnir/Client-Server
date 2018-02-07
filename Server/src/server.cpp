@@ -70,6 +70,8 @@ int Server::run()
                         m_selector.remove(socket);
                         itr = m_clients.erase(itr);
                         continue;
+                    }else if (status == sf::Socket::Error){
+                        onErrorWithReceivingData(*itr);
                     }
                 }
                 ++itr;

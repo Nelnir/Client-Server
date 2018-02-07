@@ -55,8 +55,14 @@ Status Client::connect(const std::string& l_password)
                 case Type::ServerConnected:      if(sendClientDataToServer()) return Status::Connected; return Status::UnableToConnect;
                 case Type::ServerIsFull:         return Status::ServerIsFull;
                 case Type::Kick:                 return Status::Blocked;
-                case Type::ServerPasswordNeeded: if(l_password.empty()) return Status::WrongPassword; return checkPassword(l_password);
+                case Type::ServerPasswordNeeded:
+                    if(l_password.empty())
+                        return Status::WrongPassword;
+                    if(checkPassword(l_password) == Status::Connected && sendClientDataToServer())
+                        return Status::Connected;
             }
+        } else{
+            onErrorWithReceivingData();
         }
     }
     return Status::UnableToConnect;
@@ -141,7 +147,7 @@ int Client::run()
         if(status == sf::Socket::Done){
             unpack(packet);
         } else if(status == sf::Socket::Disconnected){
-            onServerClosedConnection();
+            onDisconnected();
             quit();
         }
     }
@@ -170,7 +176,7 @@ void Client::serverMessage(sf::Packet &l_packet)
 {
     std::string message;
     l_packet >> message;
-    onServerMessageReceived("[SERVER]: " + message);
+    onServerMessageReceived(message);
 }
 
 void Client::kick(sf::Packet &l_packet)

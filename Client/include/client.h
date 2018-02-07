@@ -57,7 +57,7 @@ protected:
     virtual void onSuccessfullyConnected() = 0;
     virtual void onErrorWithSendingData() = 0;
     virtual void onErrorWithReceivingData() = 0;
-    virtual void onServerClosedConnection() = 0;
+    virtual void onDisconnected() = 0;
     virtual void onServerWrongPassword() = 0;
     virtual void onArgumentsError(const char*) = 0;
     virtual void onUnableToConnect() = 0;

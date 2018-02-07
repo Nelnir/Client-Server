@@ -24,7 +24,7 @@ protected:
     void onSuccessfullyConnected();
     void onErrorWithSendingData();
     void onErrorWithReceivingData();
-    void onServerClosedConnection();
+    void onDisconnected();
     void onServerWrongPassword();
     void onArgumentsError(const char *);
     void onUnableToConnect();

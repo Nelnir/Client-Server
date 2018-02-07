@@ -48,6 +48,8 @@ public:
     bool promote(const std::string& l_ip, const ClientType& l_type);
     bool promoteClient(std::unique_ptr<ClientServerData> &l_data, const ClientType &l_type);
 
+    bool sendMessageToAllClients(const std::string& l_text);
+
     /// MAIN FUNCTIONS
     virtual int run();
     void quit();
@@ -73,7 +75,6 @@ protected:
     bool m_running;
 
     bool sendMessageToAllClientsFrom(std::unique_ptr<ClientServerData>& l_client, const std::string& l_text);
-    bool sendMessageToAllClients(const std::string& l_text);
     bool sendMessageToAllClients(sf::Packet& l_packet, std::unique_ptr<ClientServerData>* l_except = nullptr);
     bool sendMessageTo(std::unique_ptr<ClientServerData>& l_data, const std::string& l_text);
     bool sendMessageTo(std::unique_ptr<ClientServerData>& l_data, sf::Packet& l_text);

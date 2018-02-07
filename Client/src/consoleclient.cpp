@@ -55,7 +55,7 @@ void ConsoleClient::onErrorWithReceivingData()
     printError("An error has occured with receiving data");
 }
 
-void ConsoleClient::onServerClosedConnection()
+void ConsoleClient::onDisconnected()
 {
     printError("Server closed the connection");
     std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -132,7 +132,7 @@ void ConsoleClient::onMessageReceived(const std::string & l_string, const Client
 
 void ConsoleClient::onServerMessageReceived(const std::string & l_string)
 {
-    printText(l_string, Color::Yellow);
+    printText("[SERVER]: " + l_string, Color::Yellow);
 }
 
 void ConsoleClient::onKick()
