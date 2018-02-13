@@ -68,9 +68,8 @@ Status Client::connect(const std::string& l_password)
     return Status::UnableToConnect;
 }
 
-bool Client::establishConnection()
+Status Client::establishConnection()
 {
-    onInitialization();
     Status status = connect();
     if(status == Status::WrongPassword){
         do{
@@ -84,7 +83,6 @@ bool Client::establishConnection()
 
     if(status == Status::Connected){
         onSuccessfullyConnected();
-        return true;
     } else if(status == Status::UnableToConnect){
         onUnableToConnect();
     } else if(status == Status::ServerIsFull){
@@ -92,7 +90,7 @@ bool Client::establishConnection()
     } else if(status == Status::Blocked){
         onBlockedFromServer();
     }
-    return false;
+    return status;
 }
 
 Status Client::connect(const sf::Uint16 &l_port, const sf::IpAddress &l_ip, const std::string &l_password)
@@ -146,7 +144,7 @@ int Client::run()
         auto status = m_client.m_socket.receive(packet);
         if(status == sf::Socket::Done){
             unpack(packet);
-        } else if(status == sf::Socket::Disconnected){
+        } else if(status == sf::Socket::Disconnected && m_running){
             onDisconnected();
             quit();
         }
@@ -156,8 +154,8 @@ int Client::run()
 
 void Client::quit()
 {
-    m_client.m_socket.disconnect();
     m_running = false;
+    m_client.m_socket.disconnect();
 }
 
 void Client::message(sf::Packet &l_packet)
@@ -168,8 +166,7 @@ void Client::message(sf::Packet &l_packet)
     if(type == ClientType::Administrator){
         username += "[ADMIN]";
     }
-    username += ": ";
-    onMessageReceived(username + message, type);
+    onMessageReceived(message, username, type);
 }
 
 void Client::serverMessage(sf::Packet &l_packet)
@@ -190,10 +187,6 @@ void Client::connectionNotification(sf::Packet &l_packet)
     std::string name;
     Type type2;
     l_packet >> name >> type2;
-    if(type2 == Type::Connection) name += " joined";
-    else if(type2 == Type::Kick) name += " have been kicked";
-    else if(type2 == Type::Disconnection) name += " disconnected";
-    else name += " [unknown reason]";
     onConnectionNotificationReceived(name, type2);
 }
 
@@ -202,11 +195,12 @@ void Client::promotion(sf::Packet &l_packet)
     ClientType type;
     l_packet >> type;
     if(m_client.m_type < type){
+        m_client.m_type = type;
         onPromotion("You have been promoted to: " + m_shared.getNameFor(type), true);
     } else{
+        m_client.m_type = type;
         onPromotion("You have been degraded to: " + m_shared.getNameFor(type), false);
     }
-    m_client.m_type = type;
 }
 
 void Client::somebodyPromotion(sf::Packet &l_packet)

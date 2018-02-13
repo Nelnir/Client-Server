@@ -14,6 +14,7 @@ ConsoleClient::~ConsoleClient()
 
 int ConsoleClient::run()
 {
+    establishConnection();
     m_running = true;
     std::thread(&ConsoleClient::inputThread, this).detach();
     return Client::run();
@@ -121,12 +122,12 @@ void ConsoleClient::printText(const std::string &l_string, const Color &l_color)
     m_colorChanger.setConsoleTextColor(tmp);
 }
 
-void ConsoleClient::onMessageReceived(const std::string & l_string, const ClientType& l_type)
+void ConsoleClient::onMessageReceived(const std::string & l_string, const std::string& l_name, const ClientType& l_type)
 {
     if(l_type == ClientType::Normie){
-        printText(l_string, Color::Default);
+        printText(l_name + ": " + l_string, Color::Default);
     } else {
-        printText(l_string, Color::Green);
+        printText(l_name + ": " + l_string, Color::Green);
     }
 }
 
@@ -143,13 +144,17 @@ void ConsoleClient::onKick()
 
 void ConsoleClient::onConnectionNotificationReceived(const std::string & l_string, const Type & l_type)
 {
+    std::string text = l_string;
     Color color;
     if(l_type == Type::Connection){
+        text += " joined";
         color = Color::Green;
     } else {
         color = Color::Red;
+        if(l_type == Type::Kick) text += " have been kicked";
+        if(l_type == Type::Disconnection) text += " disconnected";
     }
-    printText(l_string, color);
+    printText(text, color);
 }
 
 void ConsoleClient::onPromotion(const std::string &l_text, const bool &l_promotion)

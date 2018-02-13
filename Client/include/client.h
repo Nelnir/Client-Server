@@ -28,9 +28,10 @@ public:
     sf::Uint16 getPort() { return m_serverPort; }
     sf::IpAddress getIp() { return m_serverIp; }
     std::string getNickname() { return m_client.m_name; }
+    ClientType getType() { return m_client.m_type; }
 
     /// MAIN
-    bool establishConnection();
+    Status establishConnection();
     virtual int run();
     void quit();
 
@@ -53,7 +54,9 @@ protected:
 
     bool sendToServer(sf::Packet& l_packet);
 
+public:
     virtual void onInitialization() = 0;
+protected:
     virtual void onSuccessfullyConnected() = 0;
     virtual void onErrorWithSendingData() = 0;
     virtual void onErrorWithReceivingData() = 0;
@@ -67,7 +70,7 @@ protected:
     virtual std::string onServerPasswordNeeded() = 0;
 
 
-    virtual void onMessageReceived(const std::string&, const ClientType& l_type) = 0;
+    virtual void onMessageReceived(const std::string& l_message, const std::string& l_name, const ClientType& l_type) = 0;
     virtual void onServerMessageReceived(const std::string&) = 0;
     virtual void onKick() = 0;
     virtual void onPromotion(const std::string& l_text, const bool& l_promotion) = 0;

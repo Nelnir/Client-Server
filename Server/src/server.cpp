@@ -225,7 +225,7 @@ bool Server::promote(const std::string& l_ip, const ClientType& l_type)
 {
     std::lock_guard<std::mutex> lk(m_mutex);
     for(auto& itr : m_clients){
-        if(itr->m_ip != l_ip && itr->m_client.m_name != l_ip){
+        if(sf::IpAddress(itr->m_ip) != l_ip && itr->m_client.m_name != l_ip){
             continue;
         }
 

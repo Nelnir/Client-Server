@@ -38,7 +38,7 @@ public:
     MOCK_METHOD1(onError, void(const std::string&));
     MOCK_METHOD0(onServerPasswordNeeded, std::string());
 
-    MOCK_METHOD2(onMessageReceived, void(const std::string&, const ClientType& l_type));
+    MOCK_METHOD3(onMessageReceived, void(const std::string&, const std::string&, const ClientType& l_type));
     MOCK_METHOD1(onServerMessageReceived, void(const std::string&));
     MOCK_METHOD0(onKick, void());
     MOCK_METHOD2(onPromotion, void(const std::string&, const bool&));
@@ -119,8 +119,16 @@ TEST_F(ServerClientTest, SendingMessages)
     EXPECT_CALL(m_server, onClientConnected(testing::_)).Times(testing::AnyNumber());
     EXPECT_CALL(m_server, onClientDisconnected(testing::_)).Times(testing::AnyNumber());
     EXPECT_CALL(m_server, onClientMessageReceived(testing::_, "siema"));
-    startServer(53000, 100ms);
-    startClient(53000, "localhost", "marcin");
+    startServer(53000, 350ms);
+    EXPECT_TRUE(startClient(53000, "localhost", "marcin", 150ms, true));
+
+    EXPECT_CALL(*m_clients.back().first, onConnectionNotificationReceived("nelnir", Type::Connection));
+
+    EXPECT_TRUE(startClient(53000, "localhost", "nelnir", 250ms, true));
+
+    EXPECT_CALL(*m_clients.back().first, onMessageReceived("siema", "marcin", testing::_));
+    EXPECT_CALL(*m_clients.back().first, onConnectionNotificationReceived("marcin", Type::Disconnection));
+
     m_clients.front().first->sendToServer("siema");
 }
 
@@ -128,10 +136,26 @@ TEST_F(ServerClientTest, RecevingMessageFromServer)
 {
     EXPECT_CALL(m_server, onClientConnected(testing::_)).Times(testing::AnyNumber());
     EXPECT_CALL(m_server, onClientDisconnected(testing::_)).Times(testing::AnyNumber());
-    startServer(53000, 150ms);
-    EXPECT_TRUE(startClient(53000, "localhost", "marcin", 150ms ,true));
+    startServer(53000, 250ms);
+    EXPECT_TRUE(startClient(53000, "localhost", "marcin", 150ms, true));
     EXPECT_CALL(*m_clients.front().first, onServerMessageReceived("testing"));
     EXPECT_CALL(*m_clients.front().first, onServerExit()).Times(testing::AnyNumber());
 
     m_server.sendMessageToAllClients("testing");
+}
+
+TEST_F(ServerClientTest, PromotingClients)
+{
+    EXPECT_CALL(m_server, onClientConnected(testing::_)).Times(testing::AnyNumber());
+    EXPECT_CALL(m_server, onClientDisconnected(testing::_)).Times(testing::AnyNumber());
+
+    startServer(53000, 250ms);
+    EXPECT_CALL(m_server, onClientPromoted(testing::_, testing::_)).Times(testing::AnyNumber());
+
+    EXPECT_TRUE(startClient(53000, "localhost", "marcin", 150ms, true));
+    EXPECT_EQ(m_clients.front().first->getType(), ClientType::Normie);
+    EXPECT_CALL(*m_clients.front().first, onPromotion(testing::_, true));
+    m_server.promote("localhost", ClientType::Administrator);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    EXPECT_EQ(m_clients.front().first->getType(), ClientType::Administrator);
 }

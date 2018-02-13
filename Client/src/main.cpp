@@ -7,8 +7,6 @@ int main(int argc, char** argv)
     if(!client.processArguments(argc, argv)){
         return 0;
     }
-    if(client.establishConnection()){
-        return client.run();
-    }
-    return 0;
+    client.onInitialization();
+    return client.run();
 }

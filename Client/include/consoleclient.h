@@ -15,12 +15,12 @@ public:
     void printError(const std::string &l_string);
     void printText(const std::string& l_string, const Color& l_color);
 
+    void onInitialization();
 private:
     void inputThread();
 protected:
     std::string onServerPasswordNeeded();
 
-    void onInitialization();
     void onSuccessfullyConnected();
     void onErrorWithSendingData();
     void onErrorWithReceivingData();
@@ -33,7 +33,7 @@ protected:
     void onError(const std::string &l_text);
 
 
-    void onMessageReceived(const std::string&, const ClientType& l_type);
+    void onMessageReceived(const std::string&, const std::string&, const ClientType& l_type);
     void onServerMessageReceived(const std::string&);
     void onKick();
     void onPromotion(const std::string& l_text, const bool& l_promotion);
