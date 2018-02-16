@@ -79,6 +79,9 @@ Status Client::establishConnection()
                 onServerWrongPassword();
             }
         }while(status == Status::WrongPassword);
+        if(status == Status::Connected && !sendClientDataToServer()){
+            status = Status::UnableToConnect;
+        }
     }
 
     if(status == Status::Connected){
